@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: StoreWeave
+
+storeweave:
+  primary: local
+  stores:
+    local:
+      type: local
+      endpoint: file:./target/storeweave-data
