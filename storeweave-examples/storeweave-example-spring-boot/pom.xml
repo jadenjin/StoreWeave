@@ -21,6 +21,10 @@
             <artifactId>storeweave-provider-local</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.jdc</groupId>
+            <artifactId>storeweave-provider-s3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>

@@ -33,7 +33,17 @@ public abstract class AbstractStorageClientContract {
     @AfterEach
     void tearDownStorageContract() {
         if (client != null) {
-            client.close();
+            try {
+                String token = null;
+                do {
+                    var page = client.list(new ListObjectsRequest(BUCKET, "", token, 1000));
+                    page.items().forEach(item -> client.delete(item.object()));
+                    token = page.nextToken();
+                } while (token != null);
+                client.capability(BucketOperations.class).orElseThrow().deleteBucket(BUCKET);
+            } finally {
+                client.close();
+            }
         }
     }
 
@@ -52,5 +62,23 @@ public abstract class AbstractStorageClientContract {
         assertEquals(1, client.list(ListObjectsRequest.firstPage(BUCKET, "docs/", 10)).items().size());
         assertTrue(client.delete(object));
         assertFalse(client.exists(object));
+    }
+
+    @Test
+    void providerHonorsContinuationTokenPagination() {
+        for (int index = 1; index <= 3; index++) {
+            StorageObject object = new StorageObject(BUCKET, "page/file-" + index + ".txt");
+            client.put(new PutObjectRequest(
+                    object,
+                    ObjectContents.fromString("item-" + index, StandardCharsets.UTF_8, "text/plain")));
+        }
+
+        var first = client.list(ListObjectsRequest.firstPage(BUCKET, "page/", 2));
+        assertEquals(2, first.items().size());
+        assertTrue(first.hasNext());
+
+        var second = client.list(new ListObjectsRequest(BUCKET, "page/", first.nextToken(), 2));
+        assertEquals(1, second.items().size());
+        assertFalse(second.hasNext());
     }
 }

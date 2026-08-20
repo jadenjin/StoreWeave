@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: s3
+
+storeweave:
+  primary: s3
+  stores:
+    s3:
+      type: s3
+      endpoint: ${STOREWEAVE_S3_ENDPOINT:}
+      region: ${AWS_REGION:us-east-1}
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+      session-token: ${AWS_SESSION_TOKEN:}
+      options:
+        path-style-access: ${STOREWEAVE_S3_PATH_STYLE:false}
