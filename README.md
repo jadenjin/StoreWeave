@@ -79,7 +79,7 @@ class DocumentService {
 StorageClient archive = registry.required("archive");
 ```
 
-Provider 配置见 [S3](docs/providers/s3.md)、[MinIO](docs/providers/minio.md)、[Aliyun OSS](docs/providers/aliyun-oss.md)、[Tencent COS](docs/providers/tencent-cos.md)、[Huawei OBS](docs/providers/huawei-obs.md)、[FTP](docs/providers/ftp.md) 和 [SFTP](docs/providers/sftp.md) 文档。示例工程默认使用 Local，可通过对应 Profile 切换。
+Provider 配置见 [Local](docs/providers/local.md)、[S3](docs/providers/s3.md)、[MinIO](docs/providers/minio.md)、[Aliyun OSS](docs/providers/aliyun-oss.md)、[Tencent COS](docs/providers/tencent-cos.md)、[Huawei OBS](docs/providers/huawei-obs.md)、[FTP](docs/providers/ftp.md) 和 [SFTP](docs/providers/sftp.md) 文档。示例工程默认使用 Local，可通过对应 Profile 切换。
 
 ```powershell
 $env:STOREWEAVE_S3_ENDPOINT = "http://127.0.0.1:9000"

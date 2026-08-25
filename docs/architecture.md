@@ -66,4 +66,4 @@ Spring Boot 自动配置只是对同一套 Core API 的适配，不是另一个�
 
 每个 Provider 只有在基础契约通过且没有泄漏 SDK 类型后，才加入根聚合构建。
 
-当前能力矩阵见项目 README；Provider 配置见 [S3](providers/s3.md)、[MinIO](providers/minio.md)、[Aliyun OSS](providers/aliyun-oss.md)、[Tencent COS](providers/tencent-cos.md)、[Huawei OBS](providers/huawei-obs.md)、[FTP](providers/ftp.md) 和 [SFTP](providers/sftp.md) 文档。
+当前能力矩阵见项目 README；Provider 配置见 [Local](providers/local.md)、[S3](providers/s3.md)、[MinIO](providers/minio.md)、[Aliyun OSS](providers/aliyun-oss.md)、[Tencent COS](providers/tencent-cos.md)、[Huawei OBS](providers/huawei-obs.md)、[FTP](providers/ftp.md) 和 [SFTP](providers/sftp.md) 文档。
