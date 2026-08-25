@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: minio
+
+storeweave:
+  primary: minio
+  stores:
+    minio:
+      type: minio
+      endpoint: ${STOREWEAVE_MINIO_ENDPOINT:}
+      region: ${STOREWEAVE_MINIO_REGION:us-east-1}
+      access-key: ${MINIO_ROOT_USER:}
+      secret-key: ${MINIO_ROOT_PASSWORD:}
+      options:
+        connect-timeout-ms: ${STOREWEAVE_MINIO_CONNECT_TIMEOUT_MS:5000}
+        read-timeout-ms: ${STOREWEAVE_MINIO_READ_TIMEOUT_MS:300000}
+        write-timeout-ms: ${STOREWEAVE_MINIO_WRITE_TIMEOUT_MS:300000}

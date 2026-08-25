@@ -12,6 +12,7 @@ import com.jdc.storeweave.core.exception.StorageErrorCode;
 import com.jdc.storeweave.core.exception.StorageException;
 import com.jdc.storeweave.core.model.ObjectContents;
 import com.jdc.storeweave.core.model.StorageObject;
+import com.jdc.storeweave.testkit.s3.S3CompatibleTestServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

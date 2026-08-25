@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: aliyun-oss
+
+storeweave:
+  primary: aliyun
+  stores:
+    aliyun:
+      type: aliyun-oss
+      endpoint: ${STOREWEAVE_ALIYUN_OSS_ENDPOINT:}
+      region: ${ALIBABA_CLOUD_REGION_ID:}
+      access-key: ${ALIBABA_CLOUD_ACCESS_KEY_ID:}
+      secret-key: ${ALIBABA_CLOUD_ACCESS_KEY_SECRET:}
+      session-token: ${ALIBABA_CLOUD_SECURITY_TOKEN:}
+      options:
+        connect-timeout-ms: ${STOREWEAVE_ALIYUN_OSS_CONNECT_TIMEOUT_MS:50000}
+        socket-timeout-ms: ${STOREWEAVE_ALIYUN_OSS_SOCKET_TIMEOUT_MS:50000}
+        max-error-retry: ${STOREWEAVE_ALIYUN_OSS_MAX_ERROR_RETRY:3}
+        sld-enabled: ${STOREWEAVE_ALIYUN_OSS_SLD_ENABLED:false}

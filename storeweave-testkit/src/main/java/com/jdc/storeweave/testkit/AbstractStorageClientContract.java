@@ -81,4 +81,20 @@ public abstract class AbstractStorageClientContract {
         assertEquals(1, second.items().size());
         assertFalse(second.hasNext());
     }
+
+    @Test
+    void providerOverwritesExistingObject() throws Exception {
+        StorageObject object = new StorageObject(BUCKET, "overwrite/item.txt");
+        client.put(new PutObjectRequest(
+                object,
+                ObjectContents.fromString("old", StandardCharsets.UTF_8, "text/plain")));
+        client.put(new PutObjectRequest(
+                object,
+                ObjectContents.fromString("new-content", StandardCharsets.UTF_8, "text/plain")));
+
+        try (var content = client.get(object)) {
+            assertEquals("new-content", new String(content.readAllBytes(), StandardCharsets.UTF_8));
+        }
+        assertEquals(11, client.stat(object).size());
+    }
 }

@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: tencent-cos
+
+storeweave:
+  primary: tencent
+  stores:
+    tencent:
+      type: tencent-cos
+      region: ${TENCENT_CLOUD_REGION:}
+      access-key: ${TENCENT_CLOUD_SECRET_ID:}
+      secret-key: ${TENCENT_CLOUD_SECRET_KEY:}
+      session-token: ${TENCENT_CLOUD_SESSION_TOKEN:}
+      options:
+        protocol: ${STOREWEAVE_TENCENT_COS_PROTOCOL:https}
+        connect-timeout-ms: ${STOREWEAVE_TENCENT_COS_CONNECT_TIMEOUT_MS:5000}
+        socket-timeout-ms: ${STOREWEAVE_TENCENT_COS_SOCKET_TIMEOUT_MS:30000}
+        max-error-retry: ${STOREWEAVE_TENCENT_COS_MAX_ERROR_RETRY:3}

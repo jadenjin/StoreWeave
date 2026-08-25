@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: huawei-obs
+
+storeweave:
+  primary: huawei
+  stores:
+    huawei:
+      type: huawei-obs
+      endpoint: ${STOREWEAVE_HUAWEI_OBS_ENDPOINT:}
+      region: ${HUAWEI_CLOUD_REGION:}
+      access-key: ${HUAWEI_CLOUD_ACCESS_KEY:}
+      secret-key: ${HUAWEI_CLOUD_SECRET_KEY:}
+      session-token: ${HUAWEI_CLOUD_SECURITY_TOKEN:}
+      options:
+        connect-timeout-ms: ${STOREWEAVE_HUAWEI_OBS_CONNECT_TIMEOUT_MS:5000}
+        socket-timeout-ms: ${STOREWEAVE_HUAWEI_OBS_SOCKET_TIMEOUT_MS:30000}
+        max-error-retry: ${STOREWEAVE_HUAWEI_OBS_MAX_ERROR_RETRY:3}
+        path-style-access: ${STOREWEAVE_HUAWEI_OBS_PATH_STYLE_ACCESS:false}

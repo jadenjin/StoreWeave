@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: ftp
+
+storeweave:
+  primary: ftp
+  stores:
+    ftp:
+      type: ftp
+      endpoint: ${STOREWEAVE_FTP_ENDPOINT:}
+      access-key: ${STOREWEAVE_FTP_USERNAME:}
+      secret-key: ${STOREWEAVE_FTP_PASSWORD:}
+      options:
+        root-directory: ${STOREWEAVE_FTP_ROOT_DIRECTORY:/storeweave}
+        connect-timeout-ms: ${STOREWEAVE_FTP_CONNECT_TIMEOUT_MS:5000}
+        socket-timeout-ms: ${STOREWEAVE_FTP_SOCKET_TIMEOUT_MS:30000}
+        passive-mode: ${STOREWEAVE_FTP_PASSIVE_MODE:true}

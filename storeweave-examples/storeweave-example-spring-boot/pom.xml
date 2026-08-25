@@ -25,6 +25,30 @@
             <artifactId>storeweave-provider-s3</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.jdc</groupId>
+            <artifactId>storeweave-provider-minio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jdc</groupId>
+            <artifactId>storeweave-provider-aliyun-oss</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jdc</groupId>
+            <artifactId>storeweave-provider-tencent-cos</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jdc</groupId>
+            <artifactId>storeweave-provider-huawei-obs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jdc</groupId>
+            <artifactId>storeweave-provider-ftp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jdc</groupId>
+            <artifactId>storeweave-provider-sftp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>

@@ -1,4 +1,4 @@
-package com.jdc.storeweave.provider.s3;
+package com.jdc.storeweave.testkit.s3;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,16 +27,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** Minimal path-style S3 HTTP implementation used only by provider tests. */
-final class S3CompatibleTestServer implements AutoCloseable {
+public final class S3CompatibleTestServer implements AutoCloseable {
 
     private static final String XMLNS = "http://s3.amazonaws.com/doc/2006-03-01/";
 
     private final Map<String, Map<String, StoredObject>> buckets = new ConcurrentHashMap<>();
     private final Map<String, UploadSession> uploads = new ConcurrentHashMap<>();
+    private final Map<String, String> lifecycleConfigurations = new ConcurrentHashMap<>();
+    private final Map<String, String> notificationConfigurations = new ConcurrentHashMap<>();
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final HttpServer server;
 
-    S3CompatibleTestServer() {
+    public S3CompatibleTestServer() {
         try {
             server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
             server.createContext("/", this::handle);
@@ -46,8 +49,12 @@ final class S3CompatibleTestServer implements AutoCloseable {
         }
     }
 
-    URI endpoint() {
+    public URI endpoint() {
         return URI.create("http://127.0.0.1:" + server.getAddress().getPort());
+    }
+
+    public String notificationConfiguration(String bucket) {
+        return notificationConfigurations.get(bucket);
     }
 
     @Override
@@ -87,6 +94,14 @@ final class S3CompatibleTestServer implements AutoCloseable {
             String method,
             String bucket,
             Map<String, String> query) throws IOException {
+        if (query.containsKey("lifecycle")) {
+            handleLifecycle(exchange, method, bucket);
+            return;
+        }
+        if (query.containsKey("notification")) {
+            handleNotification(exchange, method, bucket);
+            return;
+        }
         if ("HEAD".equals(method)) {
             if (buckets.containsKey(bucket)) {
                 empty(exchange, 200);
@@ -108,6 +123,8 @@ final class S3CompatibleTestServer implements AutoCloseable {
                 error(exchange, 409, "BucketNotEmpty", bucket);
             } else {
                 buckets.remove(bucket);
+                lifecycleConfigurations.remove(bucket);
+                notificationConfigurations.remove(bucket);
                 empty(exchange, 204);
             }
             return;
@@ -117,6 +134,50 @@ final class S3CompatibleTestServer implements AutoCloseable {
             return;
         }
         error(exchange, 405, "MethodNotAllowed", method);
+    }
+
+    private void handleLifecycle(HttpExchange exchange, String method, String bucket) throws IOException {
+        if (!buckets.containsKey(bucket)) {
+            error(exchange, 404, "NoSuchBucket", bucket);
+            return;
+        }
+        if ("PUT".equals(method)) {
+            lifecycleConfigurations.put(bucket, new String(requestContent(exchange), StandardCharsets.UTF_8));
+            empty(exchange, 200);
+        } else if ("GET".equals(method)) {
+            String configuration = lifecycleConfigurations.get(bucket);
+            if (configuration == null) {
+                error(exchange, 404, "NoSuchLifecycleConfiguration", bucket);
+            } else {
+                xml(exchange, 200, configuration);
+            }
+        } else if ("DELETE".equals(method)) {
+            lifecycleConfigurations.remove(bucket);
+            empty(exchange, 204);
+        } else {
+            error(exchange, 405, "MethodNotAllowed", method);
+        }
+    }
+
+    private void handleNotification(HttpExchange exchange, String method, String bucket) throws IOException {
+        if (!buckets.containsKey(bucket)) {
+            error(exchange, 404, "NoSuchBucket", bucket);
+            return;
+        }
+        if ("PUT".equals(method)) {
+            String configuration = new String(requestContent(exchange), StandardCharsets.UTF_8);
+            if (configuration.contains("QueueConfiguration")) {
+                notificationConfigurations.put(bucket, configuration);
+            } else {
+                notificationConfigurations.remove(bucket);
+            }
+            empty(exchange, 200);
+        } else if ("DELETE".equals(method)) {
+            notificationConfigurations.remove(bucket);
+            empty(exchange, 204);
+        } else {
+            error(exchange, 405, "MethodNotAllowed", method);
+        }
     }
 
     private void handleObject(
@@ -162,12 +223,7 @@ final class S3CompatibleTestServer implements AutoCloseable {
             String key) throws IOException {
         byte[] content = requestContent(exchange);
         String eTag = digest(content);
-        Map<String, String> metadata = new LinkedHashMap<>();
-        exchange.getRequestHeaders().forEach((name, values) -> {
-            if (name.toLowerCase(Locale.ROOT).startsWith("x-amz-meta-") && !values.isEmpty()) {
-                metadata.put(name.substring("x-amz-meta-".length()), values.get(0));
-            }
-        });
+        Map<String, String> metadata = requestMetadata(exchange);
         StoredObject object = new StoredObject(
                 content,
                 exchange.getRequestHeaders().getFirst("Content-Type"),
@@ -229,10 +285,14 @@ final class S3CompatibleTestServer implements AutoCloseable {
         }
         String prefix = query.getOrDefault("prefix", "");
         String token = query.get("continuation-token");
+        if (token == null) {
+            token = query.get("start-after");
+        }
+        String pageToken = token;
         int maxKeys = Integer.parseInt(query.getOrDefault("max-keys", "1000"));
         List<Map.Entry<String, StoredObject>> matches = objects.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(prefix))
-                .filter(entry -> token == null || entry.getKey().compareTo(token) > 0)
+                .filter(entry -> pageToken == null || entry.getKey().compareTo(pageToken) > 0)
                 .sorted(Map.Entry.comparingByKey())
                 .limit((long) maxKeys + 1)
                 .toList();
@@ -255,7 +315,10 @@ final class S3CompatibleTestServer implements AutoCloseable {
         }
         page.forEach(entry -> xml
                 .append("<Contents><Key>").append(escape(entry.getKey())).append("</Key>")
-                .append("<LastModified>").append(entry.getValue().lastModified()).append("</LastModified>")
+                .append("<LastModified>")
+                .append(DateTimeFormatter.ISO_INSTANT.format(
+                        entry.getValue().lastModified().truncatedTo(ChronoUnit.MILLIS)))
+                .append("</LastModified>")
                 .append("<ETag>").append(escape(quote(entry.getValue().eTag()))).append("</ETag>")
                 .append("<Size>").append(entry.getValue().content().length).append("</Size>")
                 .append("<StorageClass>STANDARD</StorageClass></Contents>"));
@@ -265,7 +328,11 @@ final class S3CompatibleTestServer implements AutoCloseable {
 
     private void initiateMultipart(HttpExchange exchange, RequestPath path) throws IOException {
         String uploadId = UUID.randomUUID().toString();
-        uploads.put(uploadId, new UploadSession(path.bucket(), path.key()));
+        uploads.put(uploadId, new UploadSession(
+                path.bucket(),
+                path.key(),
+                exchange.getRequestHeaders().getFirst("Content-Type"),
+                requestMetadata(exchange)));
         xml(exchange, 200, "<InitiateMultipartUploadResult xmlns=\"" + XMLNS + "\">"
                 + "<Bucket>" + escape(path.bucket()) + "</Bucket>"
                 + "<Key>" + escape(path.key()) + "</Key>"
@@ -298,6 +365,12 @@ final class S3CompatibleTestServer implements AutoCloseable {
                 .append("<Bucket>").append(escape(upload.bucket())).append("</Bucket>")
                 .append("<Key>").append(escape(upload.key())).append("</Key>")
                 .append("<UploadId>").append(uploadId).append("</UploadId>")
+                .append("<Initiator><ID>storeweave</ID><DisplayName>storeweave</DisplayName></Initiator>")
+                .append("<Owner><ID>storeweave</ID><DisplayName>storeweave</DisplayName></Owner>")
+                .append("<StorageClass>STANDARD</StorageClass>")
+                .append("<PartNumberMarker>0</PartNumberMarker>")
+                .append("<NextPartNumberMarker>0</NextPartNumberMarker>")
+                .append("<MaxParts>1000</MaxParts>")
                 .append("<IsTruncated>false</IsTruncated>");
         upload.parts().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
@@ -331,7 +404,7 @@ final class S3CompatibleTestServer implements AutoCloseable {
         String eTag = digest(content);
         buckets.get(upload.bucket()).put(
                 upload.key(),
-                new StoredObject(content, "application/octet-stream", Map.of(), Instant.now(), eTag));
+                new StoredObject(content, upload.contentType(), upload.metadata(), Instant.now(), eTag));
         xml(exchange, 200, "<CompleteMultipartUploadResult xmlns=\"" + XMLNS + "\">"
                 + "<Location>" + endpoint() + "/" + escape(upload.bucket()) + "/" + escape(upload.key()) + "</Location>"
                 + "<Bucket>" + escape(upload.bucket()) + "</Bucket>"
@@ -373,6 +446,10 @@ final class S3CompatibleTestServer implements AutoCloseable {
     }
 
     private static void error(HttpExchange exchange, int status, String code, String message) throws IOException {
+        if ("HEAD".equals(exchange.getRequestMethod())) {
+            empty(exchange, status);
+            return;
+        }
         xml(exchange, status, "<Error><Code>" + escape(code) + "</Code><Message>"
                 + escape(message == null ? code : message) + "</Message></Error>");
     }
@@ -419,6 +496,16 @@ final class S3CompatibleTestServer implements AutoCloseable {
             offset += 2;
         }
         return decoded.toByteArray();
+    }
+
+    private static Map<String, String> requestMetadata(HttpExchange exchange) {
+        Map<String, String> metadata = new LinkedHashMap<>();
+        exchange.getRequestHeaders().forEach((name, values) -> {
+            if (name.toLowerCase(Locale.ROOT).startsWith("x-amz-meta-") && !values.isEmpty()) {
+                metadata.put(name.substring("x-amz-meta-".length()), values.get(0));
+            }
+        });
+        return Map.copyOf(metadata);
     }
 
     private static int indexOfCrlf(byte[] value, int fromIndex) {
@@ -468,12 +555,16 @@ final class S3CompatibleTestServer implements AutoCloseable {
     private static final class UploadSession {
         private final String bucket;
         private final String key;
+        private final String contentType;
+        private final Map<String, String> metadata;
         private final Map<Integer, byte[]> parts = new ConcurrentHashMap<>();
         private final Map<Integer, String> eTags = new ConcurrentHashMap<>();
 
-        private UploadSession(String bucket, String key) {
+        private UploadSession(String bucket, String key, String contentType, Map<String, String> metadata) {
             this.bucket = bucket;
             this.key = key;
+            this.contentType = contentType;
+            this.metadata = metadata;
         }
 
         private String bucket() {
@@ -482,6 +573,14 @@ final class S3CompatibleTestServer implements AutoCloseable {
 
         private String key() {
             return key;
+        }
+
+        private String contentType() {
+            return contentType;
+        }
+
+        private Map<String, String> metadata() {
+            return metadata;
         }
 
         private Map<Integer, byte[]> parts() {

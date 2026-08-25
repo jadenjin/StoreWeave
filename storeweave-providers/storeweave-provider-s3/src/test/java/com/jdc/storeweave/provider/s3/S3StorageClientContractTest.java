@@ -4,6 +4,7 @@ import com.jdc.storeweave.core.StorageClient;
 import com.jdc.storeweave.core.config.StorageConfiguration;
 import com.jdc.storeweave.core.config.StorageCredentials;
 import com.jdc.storeweave.testkit.AbstractStorageClientContract;
+import com.jdc.storeweave.testkit.s3.S3CompatibleTestServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInstance;
 

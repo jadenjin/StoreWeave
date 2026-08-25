@@ -17,6 +17,12 @@
         <module>storeweave-testkit</module>
         <module>storeweave-providers/storeweave-provider-local</module>
         <module>storeweave-providers/storeweave-provider-s3</module>
+        <module>storeweave-providers/storeweave-provider-minio</module>
+        <module>storeweave-providers/storeweave-provider-aliyun-oss</module>
+        <module>storeweave-providers/storeweave-provider-tencent-cos</module>
+        <module>storeweave-providers/storeweave-provider-huawei-obs</module>
+        <module>storeweave-providers/storeweave-provider-ftp</module>
+        <module>storeweave-providers/storeweave-provider-sftp</module>
         <module>storeweave-spring/storeweave-spring-boot-autoconfigure</module>
         <module>storeweave-spring/storeweave-spring-boot-starter</module>
         <module>storeweave-examples/storeweave-example-spring-boot</module>
@@ -31,6 +37,14 @@
 
         <spring-boot.version>4.1.0</spring-boot.version>
         <aws.sdk.version>2.54.0</aws.sdk.version>
+        <minio.sdk.version>8.6.0</minio.sdk.version>
+        <okhttp.version>5.1.0</okhttp.version>
+        <guava.version>33.4.8-jre</guava.version>
+        <aliyun.oss.version>3.18.5</aliyun.oss.version>
+        <tencent.cos.version>5.6.275</tencent.cos.version>
+        <huawei.obs.version>3.26.6</huawei.obs.version>
+        <commons.net.version>3.13.0</commons.net.version>
+        <jsch.version>2.28.6</jsch.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>
@@ -50,6 +64,11 @@
             </dependency>
 
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.jdc</groupId>
                 <artifactId>storeweave-core</artifactId>
                 <version>${project.version}</version>
@@ -67,6 +86,36 @@
             <dependency>
                 <groupId>com.jdc</groupId>
                 <artifactId>storeweave-provider-s3</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jdc</groupId>
+                <artifactId>storeweave-provider-minio</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jdc</groupId>
+                <artifactId>storeweave-provider-aliyun-oss</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jdc</groupId>
+                <artifactId>storeweave-provider-tencent-cos</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jdc</groupId>
+                <artifactId>storeweave-provider-huawei-obs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jdc</groupId>
+                <artifactId>storeweave-provider-ftp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jdc</groupId>
+                <artifactId>storeweave-provider-sftp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

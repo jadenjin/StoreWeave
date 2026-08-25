@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: sftp
+
+storeweave:
+  primary: sftp
+  stores:
+    sftp:
+      type: sftp
+      endpoint: ${STOREWEAVE_SFTP_ENDPOINT:}
+      access-key: ${STOREWEAVE_SFTP_USERNAME:}
+      secret-key: ${STOREWEAVE_SFTP_PASSWORD:}
+      options:
+        root-directory: ${STOREWEAVE_SFTP_ROOT_DIRECTORY:/storeweave}
+        connect-timeout-ms: ${STOREWEAVE_SFTP_CONNECT_TIMEOUT_MS:5000}
+        socket-timeout-ms: ${STOREWEAVE_SFTP_SOCKET_TIMEOUT_MS:30000}
+        strict-host-key-checking: ${STOREWEAVE_SFTP_STRICT_HOST_KEY_CHECKING:true}
+        known-hosts: ${STOREWEAVE_SFTP_KNOWN_HOSTS:}
