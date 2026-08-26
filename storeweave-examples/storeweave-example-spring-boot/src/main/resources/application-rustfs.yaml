@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: rustfs
+
+storeweave:
+  primary: rustfs
+  stores:
+    rustfs:
+      type: rustfs
+      endpoint: ${STOREWEAVE_RUSTFS_ENDPOINT:}
+      region: ${STOREWEAVE_RUSTFS_REGION:us-east-1}
+      access-key: ${STOREWEAVE_RUSTFS_ACCESS_KEY:}
+      secret-key: ${STOREWEAVE_RUSTFS_SECRET_KEY:}
+      session-token: ${STOREWEAVE_RUSTFS_SESSION_TOKEN:}
+      options:
+        path-style-access: ${STOREWEAVE_RUSTFS_PATH_STYLE:true}

@@ -64,6 +64,7 @@ public final class S3StorageClient
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
     private final String name;
+    private final String providerType;
     private final Region region;
     private final boolean customEndpoint;
     private final S3Client s3Client;
@@ -71,11 +72,13 @@ public final class S3StorageClient
 
     S3StorageClient(
             String name,
+            String providerType,
             Region region,
             boolean customEndpoint,
             S3Client s3Client,
             S3Presigner presigner) {
         this.name = Objects.requireNonNull(name, "name");
+        this.providerType = Objects.requireNonNull(providerType, "providerType");
         this.region = Objects.requireNonNull(region, "region");
         this.customEndpoint = customEndpoint;
         this.s3Client = Objects.requireNonNull(s3Client, "s3Client");
@@ -89,7 +92,7 @@ public final class S3StorageClient
 
     @Override
     public String providerType() {
-        return S3StorageProvider.TYPE;
+        return providerType;
     }
 
     @Override
@@ -158,7 +161,7 @@ public final class S3StorageClient
             if (S3ExceptionMapper.isNotFound(exception)) {
                 return false;
             }
-            throw S3ExceptionMapper.map("Check object " + object, exception);
+            throw S3ExceptionMapper.map(providerType(), "Check object " + object, exception);
         }
     }
 
@@ -210,7 +213,7 @@ public final class S3StorageClient
             if (S3ExceptionMapper.isNotFound(exception)) {
                 return false;
             }
-            throw S3ExceptionMapper.map("Check bucket " + bucket, exception);
+            throw S3ExceptionMapper.map(providerType(), "Check bucket " + bucket, exception);
         }
     }
 
@@ -408,7 +411,7 @@ public final class S3StorageClient
             }
         }
         if (failure != null) {
-            throw S3ExceptionMapper.map("Close S3 client", failure);
+            throw S3ExceptionMapper.map(providerType(), "Close S3 client", failure);
         }
     }
 
@@ -436,7 +439,7 @@ public final class S3StorageClient
         try {
             return action.get();
         } catch (RuntimeException exception) {
-            throw S3ExceptionMapper.map(operation, exception);
+            throw S3ExceptionMapper.map(providerType(), operation, exception);
         }
     }
 

@@ -11,7 +11,8 @@ final class S3ExceptionMapper {
     private S3ExceptionMapper() {
     }
 
-    static StorageException map(String operation, RuntimeException exception) {
+    static StorageException map(
+            String providerType, String operation, RuntimeException exception) {
         if (exception instanceof StorageException storageException) {
             return storageException;
         }
@@ -23,7 +24,7 @@ final class S3ExceptionMapper {
             return new StorageException(
                     errorCode(status),
                     message(operation, status, errorCode),
-                    S3StorageProvider.TYPE,
+                    providerType,
                     exception,
                     retryable(status));
         }
@@ -31,14 +32,14 @@ final class S3ExceptionMapper {
             return new StorageException(
                     StorageErrorCode.PROVIDER_ERROR,
                     operation + " failed because the S3 service could not be reached",
-                    S3StorageProvider.TYPE,
+                    providerType,
                     exception,
                     true);
         }
         return new StorageException(
                 StorageErrorCode.PROVIDER_ERROR,
                 operation + " failed",
-                S3StorageProvider.TYPE,
+                providerType,
                 exception,
                 false);
     }

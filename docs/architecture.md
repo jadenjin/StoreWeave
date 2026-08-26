@@ -63,7 +63,8 @@ Spring Boot 自动配置只是对同一套 Core API 的适配，不是另一个�
 3. MinIO（已完成）：对象操作、生命周期、通知、配额和服务管理能力。
 4. Aliyun OSS（已完成）、Tencent COS（已完成）、Huawei OBS（已完成）。
 5. FTP、SFTP（已完成）：明确其目录语义与对象存储差异，下载流持有的连接由流关闭释放。
+6. RustFS（已完成）：作为 S3 协议模块中的独立类型复用 AWS SDK 实现，以 RustFS 默认配置和错误类型对外呈现。
 
 每个 Provider 只有在基础契约通过且没有泄漏 SDK 类型后，才加入根聚合构建。
 
-当前能力矩阵见项目 README；Provider 配置见 [Local](providers/local.md)、[S3](providers/s3.md)、[MinIO](providers/minio.md)、[Aliyun OSS](providers/aliyun-oss.md)、[Tencent COS](providers/tencent-cos.md)、[Huawei OBS](providers/huawei-obs.md)、[FTP](providers/ftp.md) 和 [SFTP](providers/sftp.md) 文档。
+当前能力矩阵见项目 README；Provider 配置见 [Local](providers/local.md)、[S3](providers/s3.md)、[RustFS](providers/rustfs.md)、[MinIO](providers/minio.md)、[Aliyun OSS](providers/aliyun-oss.md)、[Tencent COS](providers/tencent-cos.md)、[Huawei OBS](providers/huawei-obs.md)、[FTP](providers/ftp.md) 和 [SFTP](providers/sftp.md) 文档。

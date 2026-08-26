@@ -34,12 +34,19 @@ public final class S3StorageProvider implements StorageProvider {
     @Override
     public StorageClient create(StorageConfiguration configuration) {
         if (!TYPE.equals(configuration.type().toLowerCase(Locale.ROOT))) {
-            throw invalid("S3 provider cannot create storage type: " + configuration.type());
+            throw invalid(TYPE, "S3 provider cannot create storage type: " + configuration.type());
         }
+        return createClient(configuration, TYPE, false);
+    }
 
+    static StorageClient createClient(
+            StorageConfiguration configuration,
+            String providerType,
+            boolean defaultPathStyleAccess) {
         Region region = Region.of(configuration.regionValue().orElse(DEFAULT_REGION));
         AwsCredentialsProvider credentialsProvider = credentialsProvider(configuration);
-        boolean pathStyleAccess = booleanOption(configuration, PATH_STYLE_ACCESS, false);
+        boolean pathStyleAccess = booleanOption(
+                configuration, PATH_STYLE_ACCESS, defaultPathStyleAccess, providerType);
         S3Configuration serviceConfiguration = S3Configuration.builder()
                 .pathStyleAccessEnabled(pathStyleAccess)
                 .build();
@@ -55,7 +62,7 @@ public final class S3StorageProvider implements StorageProvider {
 
         URI endpoint = configuration.endpoint();
         if (endpoint != null) {
-            validateEndpoint(endpoint);
+            validateEndpoint(endpoint, providerType);
             clientBuilder.endpointOverride(endpoint);
             presignerBuilder.endpointOverride(endpoint);
         }
@@ -66,6 +73,7 @@ public final class S3StorageProvider implements StorageProvider {
             S3Presigner presigner = presignerBuilder.build();
             return new S3StorageClient(
                     configuration.name(),
+                    providerType,
                     region,
                     endpoint != null,
                     client,
@@ -76,8 +84,8 @@ public final class S3StorageProvider implements StorageProvider {
             }
             throw new StorageException(
                     StorageErrorCode.INVALID_REQUEST,
-                    "Cannot create S3 client",
-                    TYPE,
+                    "Cannot create " + providerType + " client",
+                    providerType,
                     exception,
                     false);
         }
@@ -103,26 +111,29 @@ public final class S3StorageProvider implements StorageProvider {
     private static boolean booleanOption(
             StorageConfiguration configuration,
             String name,
-            boolean defaultValue) {
+            boolean defaultValue,
+            String providerType) {
         return configuration.option(name)
                 .map(value -> switch (value.toLowerCase(Locale.ROOT)) {
                     case "true" -> true;
                     case "false" -> false;
-                    default -> throw invalid("Option '" + name + "' must be true or false");
+                    default -> throw invalid(
+                            providerType, "Option '" + name + "' must be true or false");
                 })
                 .orElse(defaultValue);
     }
 
-    private static void validateEndpoint(URI endpoint) {
+    static void validateEndpoint(URI endpoint, String providerType) {
         String scheme = endpoint.getScheme();
         if (scheme == null
                 || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))
                 || endpoint.getHost() == null) {
-            throw invalid("S3 endpoint must be an absolute HTTP(S) URI");
+            throw invalid(providerType, "S3 endpoint must be an absolute HTTP(S) URI");
         }
     }
 
-    private static StorageException invalid(String message) {
-        return new StorageException(StorageErrorCode.INVALID_REQUEST, message, TYPE, null, false);
+    static StorageException invalid(String providerType, String message) {
+        return new StorageException(
+                StorageErrorCode.INVALID_REQUEST, message, providerType, null, false);
     }
 }
