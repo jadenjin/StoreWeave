@@ -18,6 +18,7 @@ StoreWeave 是一个面向 Java 17+ 的可插拔存储访问框架。核心 API 
 | `storeweave-provider-huawei-obs` | 华为云 OBS Provider |
 | `storeweave-provider-ftp` | 基于 Commons Net 的 FTP Provider |
 | `storeweave-provider-sftp` | 基于 JSch 的 SFTP Provider |
+| `storeweave-providers-all` | 一次引入全部 Provider 的便捷聚合依赖 |
 | `storeweave-spring-boot-autoconfigure` | 配置绑定与自动装配 |
 | `storeweave-spring-boot-starter` | Spring Boot 使用入口，不捆绑 Provider |
 | `storeweave-example-spring-boot` | 可运行示例 |
@@ -52,7 +53,16 @@ StoreWeave 是一个面向 Java 17+ 的可插拔存储访问框架。核心 API 
 
 ## Spring Boot 配置
 
-Starter 不会自动带入 Local、S3 或其他 Provider。应用必须显式选择 Provider 模块。
+Starter 不会自动带入 Local、S3 或其他 Provider。应用可以按需引入单个 Provider；需要全部实现时，也可以只引入聚合模块：
+
+```xml
+<dependency>
+    <groupId>com.jdc</groupId>
+    <artifactId>storeweave-providers-all</artifactId>
+</dependency>
+```
+
+该依赖会传递引入 Local、S3/RustFS、MinIO、Aliyun OSS、Tencent COS、Huawei OBS、FTP 和 SFTP。只使用少数存储时，仍建议按需引入对应 Provider，以减小依赖体积。
 
 ```yaml
 storeweave:

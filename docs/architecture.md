@@ -9,6 +9,7 @@ StoreWeave 为对象存储、本地文件系统和文件传输协议提供一致
 ```text
 example -> starter -> autoconfigure -> core
 example -> provider -> core
+example -> providers-all -> provider -> core
 provider tests -> testkit -> core
 ```
 
@@ -19,6 +20,8 @@ provider tests -> testkit -> core
 - `provider -> Spring`
 - `provider A -> provider B`
 - `starter -> 任意具体 provider`
+
+`storeweave-providers-all` 是纯依赖聚合模块，不实现 Provider，也不包含业务代码，因此不属于 `provider A -> provider B` 的禁止情形。
 
 ## API 分层
 

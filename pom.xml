@@ -23,6 +23,7 @@
         <module>storeweave-providers/storeweave-provider-huawei-obs</module>
         <module>storeweave-providers/storeweave-provider-ftp</module>
         <module>storeweave-providers/storeweave-provider-sftp</module>
+        <module>storeweave-providers/storeweave-providers-all</module>
         <module>storeweave-spring/storeweave-spring-boot-autoconfigure</module>
         <module>storeweave-spring/storeweave-spring-boot-starter</module>
         <module>storeweave-examples/storeweave-example-spring-boot</module>
@@ -116,6 +117,11 @@
             <dependency>
                 <groupId>com.jdc</groupId>
                 <artifactId>storeweave-provider-sftp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jdc</groupId>
+                <artifactId>storeweave-providers-all</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
