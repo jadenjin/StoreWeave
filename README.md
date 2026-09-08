@@ -64,6 +64,8 @@ Starter 不会自动带入 Local、S3 或其他 Provider。应用可以按需引
 
 该依赖会传递引入 Local、S3/RustFS、MinIO、Aliyun OSS、Tencent COS、Huawei OBS、FTP 和 SFTP。只使用少数存储时，仍建议按需引入对应 Provider，以减小依赖体积。
 
+> `storeweave-providers-all` 适合快速开始、管理平台和需要动态切换 Provider 的应用。生产应用若只使用单一存储，推荐直接依赖对应 Provider。
+
 ```yaml
 storeweave:
   primary: local

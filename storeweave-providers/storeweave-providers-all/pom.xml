@@ -19,34 +19,42 @@
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-local</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-s3</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-minio</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-aliyun-oss</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-tencent-cos</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-huawei-obs</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-ftp</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jdc</groupId>
             <artifactId>storeweave-provider-sftp</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -55,4 +63,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 </project>
