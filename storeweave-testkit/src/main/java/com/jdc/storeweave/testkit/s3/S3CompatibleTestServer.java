@@ -30,6 +30,9 @@ import java.util.concurrent.Executors;
 public final class S3CompatibleTestServer implements AutoCloseable {
 
     private static final String XMLNS = "http://s3.amazonaws.com/doc/2006-03-01/";
+    private static final DateTimeFormatter HTTP_DATE_FORMATTER = DateTimeFormatter
+            .ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US)
+            .withZone(ZoneOffset.UTC);
 
     private final Map<String, Map<String, StoredObject>> buckets = new ConcurrentHashMap<>();
     private final Map<String, UploadSession> uploads = new ConcurrentHashMap<>();
@@ -259,8 +262,7 @@ public final class S3CompatibleTestServer implements AutoCloseable {
                 : object.contentType());
         headers.set("ETag", quote(object.eTag()));
         headers.set("Content-Length", Integer.toString(object.content().length));
-        headers.set("Last-Modified", DateTimeFormatter.RFC_1123_DATE_TIME
-                .format(object.lastModified().atZone(ZoneOffset.UTC)));
+        headers.set("Last-Modified", HTTP_DATE_FORMATTER.format(object.lastModified()));
         object.metadata().forEach((name, value) -> headers.set("x-amz-meta-" + name, value));
     }
 
